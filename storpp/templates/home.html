@@ -55,11 +55,11 @@
                 @apply opacity-100 w-8;
             }
             .animate-fade {
-                animation: fade 0.5s ease-in-out;
+                animation: fade 0.3s ease-in-out;
             }
             @keyframes fade {
-                0% { opacity: 0; }
-                100% { opacity: 1; }
+                0% { opacity: 0; transform: translateY(-10px); }
+                100% { opacity: 1; transform: translateY(0); }
             }
         }
     </style>
@@ -69,7 +69,7 @@
     <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <!-- 品牌标志 -->
-            <a href="#" class="flex items-center">
+            <a href="{% url 'home' %}" class="flex items-center">
                 <i class="fa fa-shopping-bag text-primary text-2xl mr-2"></i>
                 <span class="text-xl font-bold text-neutral-700">商城</span>
             </a>
@@ -87,20 +87,14 @@
             
             <!-- 用户操作区 -->
             <div class="flex items-center space-x-4">
-                <a href="#" class="text-neutral-600 hover:text-primary transition-colors relative">
-                    <i class="fa fa-heart-o text-xl"></i>
+                <a href="{% url 'user_profile' %}" class="text-neutral-600 hover:text-primary transition-colors relative">
+                    <i class="fa fa-heart-o text-xl">我</i>
                     <span class="absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
                 </a>
-                <a href="#" class="text-neutral-600 hover:text-primary transition-colors relative">
-                    <i class="fa fa-shopping-cart text-xl"></i>
-                    <span class="absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">2</span>
+                <a href="{% url 'cart' %}" class="text-neutral-600 hover:text-primary transition-colors relative" id="cart-icon">
+                    <i class="fa fa-shopping-cart text-xl">购物车</i>
+                    <span class="absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="cart-count">0</span>
                 </a>
-                <a href="#" class="text-neutral-600 hover:text-primary transition-colors">
-                    <i class="fa fa-user-o text-xl"></i>
-                </a>
-                <button class="md:hidden text-neutral-600">
-                    <i class="fa fa-bars text-xl"></i>
-                </button>
             </div>
         </div>
         
@@ -120,17 +114,6 @@
                 </nav>
             </div>
         </div>
-        
-        <!-- 搜索框 - 移动端 -->
-        <div class="md:hidden px-4 pb-3">
-            <form action="{% url 'search' %}" method="get" class="w-full relative">
-                <input type="text" name="query" placeholder="搜索商品..." 
-                    class="w-full py-2 px-4 pr-10 rounded-full border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
-                <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-primary transition-colors">
-                    <i class="fa fa-search"></i>
-                </button>
-            </form>
-        </div>
     </header>
 
     <!-- 主内容区 -->
@@ -138,7 +121,6 @@
         <!-- 轮播图 -->
         <div class="relative rounded-xl overflow-hidden mb-8 shadow-lg">
             <div class="carousel-container relative h-[200px] md:h-[400px]">
-                <!-- 轮播图片 -->
                 <div class="carousel-slide absolute inset-0 animate-fade">
                     <img src="https://picsum.photos/1200/400?random=1" alt="夏季促销" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-r from-primary/70 to-transparent flex flex-col justify-center px-6 md:px-12 text-white">
@@ -300,29 +282,22 @@
                     <button class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-red-500 transition-colors">
                         <i class="fa fa-heart-o"></i>
                     </button>
+                    <button onclick="addToCart({{ product.id }})" class="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                        <i class="fa fa-shopping-cart"></i>
+                    </button>
                 </div>
                 <div class="p-4">
-                    <h3 class="font-medium text-neutral-700 line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-                        {{ product.name }}
-                    </h3>
-                    <div class="flex items-center mb-2">
-                        <div class="flex text-yellow-400 text-xs">
-                            {% for i in '12345'|make_list %}
-                                <i class="fa fa-star{% if forloop.counter > product.rating|default:0 %}-o{% endif %}"></i>
-                            {% endfor %}
+                    <h3 class="text-sm md:text-base font-bold text-neutral-700 mb-1">{{ product.name }}</h3>
+                    <p class="text-xs md:text-sm text-neutral-500 line-clamp-2">{{ product.description }}</p>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-lg font-bold text-primary">{{ product.price }} 元</span>
+                        <div class="flex items-center space-x-1 text-yellow-500">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star-half-o"></i>
                         </div>
-                        <span class="text-xs text-neutral-500 ml-1">({{ product.review_count|default:0 }})</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <span class="text-primary font-bold text-lg">¥{{ product.price }}</span>
-                            {% if product.original_price %}
-                            <span class="text-neutral-400 text-xs line-through ml-1">¥{{ product.original_price }}</span>
-                            {% endif %}
-                        </div>
-                        <button onclick="addToCart({{ product.id }})" class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
-                            <i class="fa fa-shopping-cart"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -393,112 +368,120 @@
             </div>
         </div>
     </footer>
-
-    <!-- 返回顶部按钮 -->
-    <button id="backToTop" class="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-primary text-white shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary/90">
-        <i class="fa fa-angle-up text-lg"></i>
-    </button>
+    
+    <!-- 错误提示元素（动态生成） -->
+    <div id="cart-error" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-fade opacity-0"></div>
 
     <script>
-        // 轮播图逻辑
-        document.addEventListener('DOMContentLoaded', function() {
-            const slides = document.querySelectorAll('.carousel-slide');
-            const indicators = document.querySelectorAll('.carousel-indicator');
-            const prevBtn = document.querySelector('.fa-angle-left').parentElement;
-            const nextBtn = document.querySelector('.fa-angle-right').parentElement;
-            let currentIndex = 0;
-            let slideInterval;
+        // 添加到购物车函数
+        window.addToCart = function(productId) {
+            // 获取商品卡片元素，提取详细信息
+            const card = document.querySelector(`button[onclick="addToCart(${productId})"]`).closest('.bg-white.rounded-xl');
+            const name = card.querySelector('h3').textContent.trim();
+            const priceElement = card.querySelector('.text-primary');
+            const price = priceElement ? parseFloat(priceElement.textContent.replace('元', '')) : 0;
             
-            function showSlide(index) {
-                slides.forEach((slide, i) => {
-                    slide.classList.toggle('opacity-0', i !== index);
-                    slide.classList.toggle('animate-fade', i === index);
-                });
-                
-                indicators.forEach((indicator, i) => {
-                    indicator.classList.toggle('active', i === index);
-                });
-                
-                currentIndex = index;
-            }
+            // 显示按钮加载状态（防止重复点击）
+            const cartBtn = document.querySelector(`button[onclick="addToCart(${productId})"]`);
+            if (!cartBtn) return;
             
-            function nextSlide() {
-                showSlide((currentIndex + 1) % slides.length);
-            }
+            const originalHTML = cartBtn.innerHTML;
+            cartBtn.disabled = true;
+            cartBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 加载中...';
             
-            function startSlideshow() {
-                slideInterval = setInterval(nextSlide, 5000);
-            }
-            
-            indicators.forEach((indicator, index) => {
-                indicator.addEventListener('click', () => {
-                    clearInterval(slideInterval);
-                    showSlide(index);
-                    startSlideshow();
-                });
-            });
-            
-            prevBtn.addEventListener('click', () => {
-                clearInterval(slideInterval);
-                showSlide((currentIndex - 1 + slides.length) % slides.length);
-                startSlideshow();
-            });
-            
-            nextBtn.addEventListener('click', () => {
-                clearInterval(slideInterval);
-                nextSlide();
-                startSlideshow();
-            });
-            
-            startSlideshow();
-            
-            // 返回顶部按钮
-            const backToTopBtn = document.getElementById('backToTop');
-            
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
-                    backToTopBtn.classList.remove('opacity-0', 'invisible');
-                    backToTopBtn.classList.add('opacity-100', 'visible');
-                } else {
-                    backToTopBtn.classList.add('opacity-0', 'invisible');
-                    backToTopBtn.classList.remove('opacity-100', 'visible');
+            // 发送 AJAX 请求到后端
+            fetch(`/add_to_cart/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    name: name,
+                    price: price,
+                    quantity: 1
+                })
+            })
+            .then(response => {
+                // 网络错误或非 2xx 状态码
+                if (!response.ok) {
+                    throw new Error('网络错误，请重试');
                 }
-                
-                // 导航栏滚动效果
-                const header = document.querySelector('header');
-                if (window.scrollY > 50) {
-                    header.classList.add('py-2', 'shadow');
-                    header.classList.remove('py-3');
-                } else {
-                    header.classList.remove('py-2', 'shadow');
-                    header.classList.add('py-3');
-                }
-            });
-            
-            backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-            
-            // 添加到购物车函数
-            window.addToCart = function(productId) {
-                // 这里可以实现实际的添加到购物车逻辑
-                console.log('添加商品到购物车，商品ID：', productId);
-                
-                // 显示添加成功的动画
-                const cartBtn = document.querySelector(`button[onclick="addToCart(${productId})"]`);
-                if (cartBtn) {
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // 成功逻辑
                     cartBtn.classList.add('bg-green-500', 'text-white');
-                    cartBtn.innerHTML = '<i class="fa fa-check"></i>';
+                    cartBtn.innerHTML = '<i class="fa fa-check"></i> 已添加';
+                    
+                    // 更新购物车计数
+                    updateCartCount(data.cart_count);
                     
                     setTimeout(() => {
                         cartBtn.classList.remove('bg-green-500', 'text-white');
-                        cartBtn.innerHTML = '<i class="fa fa-shopping-cart"></i>';
+                        cartBtn.innerHTML = originalHTML;
+                        cartBtn.disabled = false;
                     }, 1500);
+                } else {
+                    // 后端返回的业务错误
+                    showError(data.message || '添加失败，请重试');
+                    cartBtn.innerHTML = originalHTML;
+                    cartBtn.disabled = false;
                 }
-            };
+            })
+            .catch(error => {
+                // 网络错误或异常
+               // showError(error.message || '网络错误，请重试');
+                cartBtn.innerHTML = originalHTML;
+                cartBtn.disabled = false;
+            });
+        };
+        
+        // 显示错误提示的函数
+        function showError(message) {
+            const errorEl = document.getElementById('cart-error');
+            errorEl.textContent = message;
+            errorEl.style.opacity = '1';
+            
+            // 3秒后隐藏提示
+            setTimeout(() => {
+                errorEl.style.opacity = '0';
+                setTimeout(() => {
+                    errorEl.textContent = ''; // 清空内容但保留元素，以便下次使用
+                }, 300);
+            }, 3000);
+        }
+        
+        // 获取 CSRF 令牌的辅助函数
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // 更新购物车计数的函数
+        function updateCartCount(count) {
+            document.getElementById('cart-count').textContent = count;
+        }
+        
+        // 页面加载时获取初始购物车计数（示例逻辑，实际需从后端获取）
+        document.addEventListener('DOMContentLoaded', () => {
+            // 模拟从后端获取购物车计数
+            fetch('/cart/count/')
+                .then(response => response.json())
+                .then(data => updateCartCount(data.count || 0))
+                .catch(() => {});
         });
     </script>
 </body>
