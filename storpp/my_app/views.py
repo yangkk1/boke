@@ -10,13 +10,12 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-from django.shortcuts import redirect
 from django.contrib import messages
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from .models import Product, Order, OrderItem
+from .forms import CustomUserCreationForm
+
 
 @login_required
 def cart_count(request):
@@ -173,16 +172,23 @@ def user_profile_view(request):
 # 注册视图
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
+            # 手动保存额外字段
+            user.phone = form.cleaned_data.get('phone')
+            user.address = form.cleaned_data.get('address')
+            user.avatar = form.cleaned_data.get('avatar')
+            user.save()
             messages.success(request, '注册成功，请登录。')
             return redirect('login')
         else:
             messages.error(request, '注册失败，请检查输入。')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
+
+
 
 
 # 登录视图

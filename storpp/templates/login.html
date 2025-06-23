@@ -1,106 +1,215 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>登录</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 - 商城</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        neutral: {
+                            100: '#F5F7FA',
+                            200: '#E4E7ED',
+                            300: '#C0C6CF',
+                            400: '#909399',
+                            500: '#606266',
+                            600: '#303133',
+                            700: '#1E1E1E',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
         }
-        .login-container {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            width: 350px;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        input[type="text"],
-        input[type="password"] {
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        button {
-            background-color: #007BFF;
-            color: #fff;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        a {
-            color: #007BFF;
-            text-decoration: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        ul.messages {
-            list-style-type: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
-        ul.messages li {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .remember-me {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .remember-me input {
-            margin-right: 10px;
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all;
+            }
+            .form-shine {
+                position: relative;
+                overflow: hidden;
+            }
+            .form-shine::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                    to right,
+                    rgba(255,255,255,0) 0%,
+                    rgba(255,255,255,0.3) 50%,
+                    rgba(255,255,255,0) 100%
+                );
+                transform: rotate(30deg);
+                animation: shine 6s infinite linear;
+            }
+            @keyframes shine {
+                0% { transform: translateX(-100%) rotate(30deg); }
+                100% { transform: translateX(100%) rotate(30deg); }
+            }
+            .slide-up {
+                animation: slideUp 0.5s ease-out forwards;
+            }
+            @keyframes slideUp {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            .pulse {
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
         }
     </style>
 </head>
-<body>
-    <div class="login-container">
-        <h1>登录</h1>
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="remember-me">
-                <input type="checkbox" id="remember_me" name="remember_me">
-                <label for="remember_me">记住我</label>
+<body class="font-inter bg-gradient-to-br from-neutral-100 to-blue-50 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden form-shine">
+            <!-- 顶部装饰 -->
+            <div class="h-2 bg-primary"></div>
+            
+            <!-- 左侧动画装饰 -->
+            <div class="hidden md:block absolute -left-10 top-1/2 transform -translate-y-1/2 w-24 h-24 rounded-full bg-primary/10 pulse"></div>
+            <div class="hidden md:block absolute -right-16 bottom-10 w-32 h-32 rounded-full bg-secondary/10 pulse" style="animation-delay: 0.5s"></div>
+            
+            <!-- 表单头部 -->
+            <div class="p-6 md:p-8 relative z-10">
+                <div class="text-center mb-8 slide-up">
+                    <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-neutral-700 mb-2">欢迎回来</h1>
+                    <p class="text-neutral-500">登录你的账户，继续购物之旅</p>
+                </div>
+                
+                <!-- 消息提示 -->
+                {% if messages %}
+                    <div class="mb-6 space-y-2 slide-up" style="animation-delay: 0.1s">
+                        {% for message in messages %}
+                            <div class="p-3 rounded-lg {% if message.tags == 'success' %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}">
+                                <i class="fa fa-info-circle mr-2"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- 登录表单 -->
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- 用户名/邮箱 -->
+                    <div class="space-y-2 slide-up" style="animation-delay: 0.2s">
+                        <label for="id_username" class="block text-sm font-medium text-neutral-700">用户名或邮箱</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa fa-user text-neutral-400"></i>
+                            </div>
+                            <input type="text" id="id_username" name="username" required
+                                class="w-full pl-10 pr-4 py-3 border border-neutral-300 rounded-lg input-focus bg-white"
+                                placeholder="请输入用户名或邮箱">
+                        </div>
+                        {% if form.username.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 密码 -->
+                    <div class="space-y-2 slide-up" style="animation-delay: 0.3s">
+                        <div class="flex justify-between items-start">
+                            <label for="id_password" class="block text-sm font-medium text-neutral-700">密码</label>
+                            <a href="#" class="text-sm text-primary hover:underline">忘记密码?</a>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa fa-lock text-neutral-400"></i>
+                            </div>
+                            <input type="password" id="id_password" name="password" required
+                                class="w-full pl-10 pr-12 py-3 border border-neutral-300 rounded-lg input-focus bg-white"
+                                placeholder="请输入密码">
+                            <button type="button" id="toggle-password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-600">
+                                <i class="fa fa-eye-slash"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 记住我 -->
+                    <div class="space-y-2 slide-up" style="animation-delay: 0.4s">
+                        <div class="flex items-center">
+                            <input id="id_remember" name="remember" type="checkbox" class="w-4 h-4 text-primary focus:ring-primary border-neutral-300 rounded input-focus">
+                            <label for="id_remember" class="ml-2 block text-sm text-neutral-600">记住我</label>
+                        </div>
+                    </div>
+                    
+                    <!-- 登录按钮 -->
+                    <div class="slide-up" style="animation-delay: 0.5s">
+                        <button type="submit" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-lg shadow-md hover:bg-primary/90 hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300">
+                            登录账户
+                        </button>
+                    </div>
+                    
+                    <!-- 第三方登录 -->
+                    <div class="slide-up" style="animation-delay: 0.6s">
+                        <div class="flex items-center justify-center">
+                            <div class="w-full border-t border-neutral-200"></div>
+                            <span class="px-3 text-sm text-neutral-400">或使用第三方账号登录</span>
+                            <div class="w-full border-t border-neutral-200"></div>
+                        </div>
+                        <div class="flex justify-center space-x-4 mt-4">
+                            <a href="#" class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 hover:bg-primary hover:text-white hover:shadow-md transition-all">
+                                <i class="fa fa-weixin"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 hover:bg-primary hover:text-white hover:shadow-md transition-all">
+                                <i class="fa fa-weibo"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 hover:bg-primary hover:text-white hover:shadow-md transition-all">
+                                <i class="fa fa-qq"></i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- 新用户提示 -->
+                <div class="text-center mt-6 slide-up" style="animation-delay: 0.7s">
+                    <p class="text-sm text-neutral-500">
+                        还没有账号？ <a href="{% url 'register' %}" class="text-primary hover:underline font-medium">立即注册</a>
+                    </p>
+                </div>
             </div>
-            <button type="submit">登录</button>
-        </form>
-        <p>还没有账号？ <a href="{% url 'register' %}">注册</a></p>
+        </div>
     </div>
+
+    <script>
+        // 密码显示/隐藏功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('toggle-password');
+            const password = document.getElementById('id_password');
+            
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
 </body>
 </html>
